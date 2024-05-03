@@ -32,7 +32,8 @@ skyTexture.repeat.set(1, 1);
 const skyGeometry = new THREE.PlaneGeometry(1000, 1000);
 const skyMaterial = new THREE.MeshBasicMaterial({ map: skyTexture });
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
-sky.position.y = 10; // Adjust the position as needed
+sky.position.y = 490;
+sky.position.z = -25; // Adjust the position as needed
 scene.add(sky);
 
 renderer.setClearColor(0xffffff);
@@ -52,6 +53,8 @@ async function loadModels() {
           birds = gltf.scene;
           scene.add(birds);
           birds.scale.set(3, 3, 3);
+          birds.position.set(5, 10, 0)
+          birds.rotation.y -= 90
           resolve();
         },
         undefined,
@@ -65,8 +68,8 @@ async function loadModels() {
         function (gltf) {
           sun = gltf.scene;
           scene.add(sun);
-          sun.scale.set(0.02, 0.02, 0.02);
-          sun.position.set(-1, 0, -5);
+          sun.scale.set(0.1, 0.1, 0.1);
+          sun.position.set(-1, 0, -15);
           resolve();
         },
         undefined,
