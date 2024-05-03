@@ -23,6 +23,18 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(2, 2, 2);
 scene.add(directionalLight);
 
+const textureLoader = new THREE.TextureLoader();
+const skyTexture = textureLoader.load("/models/sky.jpg");
+skyTexture.wrapS = THREE.RepeatWrapping;
+skyTexture.wrapT = THREE.RepeatWrapping;
+skyTexture.repeat.set(1, 1);
+
+const skyGeometry = new THREE.PlaneGeometry(1000, 1000);
+const skyMaterial = new THREE.MeshBasicMaterial({ map: skyTexture });
+const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+sky.position.y = 10; // Adjust the position as needed
+scene.add(sky);
+
 renderer.setClearColor(0xffffff);
 camera.position.z = 10;
 
@@ -54,7 +66,7 @@ async function loadModels() {
           sun = gltf.scene;
           scene.add(sun);
           sun.scale.set(0.02, 0.02, 0.02);
-          sun.position.set(-1, 0, -5)
+          sun.position.set(-1, 0, -5);
           resolve();
         },
         undefined,
