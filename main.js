@@ -29,6 +29,7 @@ camera.position.z = 10;
 const controls = new OrbitControls(camera, renderer.domElement);
 const loader = new GLTFLoader();
 let birds;
+let sun;
 
 async function loadModels() {
   try {
@@ -46,7 +47,24 @@ async function loadModels() {
       );
     });
 
+    const sunPromise = new Promise((resolve, reject) => {
+      loader.load(
+        "/models/sun/scene.gltf",
+        function (gltf) {
+          sun = gltf.scene;
+          scene.add(sun);
+          sun.scale.set(0.02, 0.02, 0.02);
+          sun.position.set(-1, 0, -5)
+          resolve();
+        },
+        undefined,
+        reject
+      );
+    });
+
     await birdsPromise;
+    await sunPromise;
+    await skyBg;
 
     console.log("Birds loaded successfully!");
   } catch (error) {
@@ -165,12 +183,12 @@ function animate() {
   if (keyboardControls.s) {
     camera.position.sub(direction.multiplyScalar(speed));
   }
-  if (keyboardControls.a) {
+  if (keyboardControls.d) {
     camera.position.sub(
       new THREE.Vector3(direction.z, 0, -direction.x).multiplyScalar(speed)
     );
   }
-  if (keyboardControls.d) {
+  if (keyboardControls.a) {
     camera.position.add(
       new THREE.Vector3(direction.z, 0, -direction.x).multiplyScalar(speed)
     );
