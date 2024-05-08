@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly space station.
+* source:	https://sketchfab.com/3d-models/low-poly-space-station-5b153e559fff44728e6749aab9717a7b
+* author:	MisterH (https://sketchfab.com/TGVMisterH)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly space station." (https://sketchfab.com/3d-models/low-poly-space-station-5b153e559fff44728e6749aab9717a7b) by MisterH (https://sketchfab.com/TGVMisterH) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
