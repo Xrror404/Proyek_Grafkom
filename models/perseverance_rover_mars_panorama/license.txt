@@ -1,0 +1,11 @@
+Model Information:
+* title:	Perseverance Rover Mars Panorama
+* source:	https://sketchfab.com/3d-models/perseverance-rover-mars-panorama-ad00a4664cbc45c491d4968109f6079e
+* author:	erdeminoff (https://sketchfab.com/erdeminoff)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Perseverance Rover Mars Panorama" (https://sketchfab.com/3d-models/perseverance-rover-mars-panorama-ad00a4664cbc45c491d4968109f6079e) by erdeminoff (https://sketchfab.com/erdeminoff) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

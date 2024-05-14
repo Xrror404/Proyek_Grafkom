@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mars rover
+* source:	https://sketchfab.com/3d-models/mars-rover-e394bc6571704d6cb40d6cb1b3fe6f2d
+* author:	Cybertron B-127 (https://sketchfab.com/robo-reboot)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mars rover" (https://sketchfab.com/3d-models/mars-rover-e394bc6571704d6cb40d6cb1b3fe6f2d) by Cybertron B-127 (https://sketchfab.com/robo-reboot) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

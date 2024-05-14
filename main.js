@@ -13,6 +13,7 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.gammaOutput = true;
+renderer.setClearColor(new THREE.Color(199 / 255, 125 / 255, 78 / 255));
 
 document.body.appendChild(renderer.domElement);
 
@@ -23,38 +24,26 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(2, 2, 2);
 scene.add(directionalLight);
 
-const textureLoader = new THREE.TextureLoader();
-const skyTexture = textureLoader.load("/models/sky.jpg");
-skyTexture.wrapS = THREE.RepeatWrapping;
-skyTexture.wrapT = THREE.RepeatWrapping;
-skyTexture.repeat.set(1, 1);
-
-const skyGeometry = new THREE.PlaneGeometry(1000, 1000);
-const skyMaterial = new THREE.MeshBasicMaterial({ map: skyTexture });
-const sky = new THREE.Mesh(skyGeometry, skyMaterial);
-sky.position.y = 490;
-sky.position.z = -25; // Adjust the position as needed
-scene.add(sky);
-
-renderer.setClearColor(0xffffff);
 camera.position.z = 10;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 const loader = new GLTFLoader();
-let birds;
-let sun;
+let perseveranceRover;
+let spaceStation;
+let marsRover;
+let spaceship;
 
 async function loadModels() {
   try {
-    const birdsPromise = new Promise((resolve, reject) => {
+    const perseveranceRoverPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/birds/scene.gltf",
+        "/models/ingenuity_in_front_of_raised_ridge.glb",
         function (gltf) {
-          birds = gltf.scene;
-          scene.add(birds);
-          birds.scale.set(3, 3, 3);
-          birds.position.set(5, 10, 0)
-          birds.rotation.y -= 90
+          perseveranceRover = gltf.scene;
+          scene.add(perseveranceRover);
+          perseveranceRover.scale.set(3, 3, 3);
+          perseveranceRover.position.set(0, 0, 0);
+          perseveranceRover.rotation.y -= 90;
           resolve();
         },
         undefined,
@@ -62,14 +51,14 @@ async function loadModels() {
       );
     });
 
-    const sunPromise = new Promise((resolve, reject) => {
+    const spaceStationPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/sun/scene.gltf",
+        "/models/low_poly_space_station/scene.gltf",
         function (gltf) {
-          sun = gltf.scene;
-          scene.add(sun);
-          sun.scale.set(0.1, 0.1, 0.1);
-          sun.position.set(-1, 0, -15);
+          spaceStation = gltf.scene;
+          scene.add(spaceStation);
+          spaceStation.scale.set(1, 1, 1);
+          spaceStation.position.set(1, 10, -15);
           resolve();
         },
         undefined,
@@ -77,11 +66,44 @@ async function loadModels() {
       );
     });
 
-    await birdsPromise;
-    await sunPromise;
-    await skyBg;
+    const marsRoverPromise = new Promise((resolve, reject) => {
+      loader.load(
+        "/models/mars_rover/scene.gltf",
+        function (gltf) {
+          marsRover = gltf.scene;
+          scene.add(marsRover);
+          marsRover.scale.set(1, 1, 1);
+          marsRover.position.set(5, -0.8, -15);
+          resolve();
+        },
+        undefined,
+        reject
+      );
+    });
 
-    console.log("Birds loaded successfully!");
+    const spaceshipPromise = new Promise((resolve, reject) => {
+      loader.load(
+        "/models/spaceship/scene.gltf",
+        function (gltf) {
+          spaceship = gltf.scene;
+          scene.add(spaceship);
+          spaceship.scale.set(1, 1, 1);
+          spaceship.position.set(10, 20, -25);
+          resolve();
+        },
+        undefined,
+        reject
+      );
+    });
+
+    await Promise.all([
+      perseveranceRoverPromise,
+      spaceStationPromise,
+      marsRoverPromise,
+      spaceshipPromise,
+    ]);
+
+    console.log("Models loaded successfully!");
   } catch (error) {
     console.error("Error loading models:", error);
   }
@@ -168,7 +190,10 @@ function checkCollision() {
   camera.getWorldDirection(cameraDirection);
 
   const raycaster = new THREE.Raycaster(camera.position, cameraDirection);
-  const intersects = raycaster.intersectObject(birds, true);
+  const intersects = raycaster.intersectObject(
+    perseveranceRover || spaceStation || marsRover || spaceship,
+    true
+  );
 
   if (intersects.length > 0) {
     const distance = intersects[0].distance;
@@ -227,46 +252,3 @@ function animate() {
 }
 
 animate();
-
-// onProgress callback function
-
-// const textures = {};
-
-// // Create a texture loader
-// const textureLoader = new THREE.TextureLoader();
-
-// // Load each texture asynchronously
-// textureLoader.load(
-//     './Model3D/textures/body_diffuse.JPEG',
-//     function (texture) {
-//         textures['body_diffuse'] = texture;
-//         applyTextures(); // Call applyTextures function after each texture is loaded
-//     }
-// );
-
-// textureLoader.load(
-//     './Model3D/textures/cloth_diffuse.JPEG',
-//     function (texture) {
-//         textures['cloth_diffuse'] = texture;
-//         applyTextures(); // Call applyTextures function after each texture is loaded
-//     }
-// );
-
-// // Function to apply textures to materials
-// function applyTextures() {
-//     // Check if all textures are loaded
-//     if (Object.keys(textures).length === 2) { // Adjust the number based on the total number of textures
-//         // Apply textures to materials
-//         loadedObject.traverse(child => {
-//             if (child.isMesh) {
-//                 // Check which material corresponds to each texture
-//                 if (child.material.name === 'body_material') {
-//                     child.material.map = textures['body_diffuse'];
-//                 } else if (child.material.name === 'other_material') {
-//                     child.material.map = textures['cloth_diffuse'];
-//                 }
-//                 // You can add more conditions for other materials if needed
-//             }
-//         });
-//     }
-// }
