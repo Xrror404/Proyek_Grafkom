@@ -20,11 +20,30 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(2, 2, 2);
-scene.add(directionalLight);
+// Create a directional light
+const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+sunLight.position.set(30, 200, -200); // Same position as the sun
+sunLight.castShadow = true; // Enable shadow casting
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+
+// Set up shadow properties for the light
+sunLight.shadow.camera.left = -500;
+sunLight.shadow.camera.right = 500;
+sunLight.shadow.camera.top = 500;
+sunLight.shadow.camera.bottom = -500;
+sunLight.shadow.camera.near = 0.5;
+sunLight.shadow.camera.far = 500;
+
+// Add the light to the scene
+scene.add(sunLight);
+
+// Optionally, you can add a helper to visualize the shadow camera's frustum
+const helper = new THREE.CameraHelper(sunLight.shadow.camera);
+scene.add(helper);
 
 camera.position.z = 10;
+camera.position.y = 5;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 const loader = new GLTFLoader();
@@ -32,6 +51,8 @@ let perseveranceRover;
 let spaceStation;
 let marsRover;
 let spaceship;
+let sun;
+let satelite;
 
 async function loadModels() {
   try {
@@ -59,6 +80,36 @@ async function loadModels() {
           scene.add(spaceStation);
           spaceStation.scale.set(1, 1, 1);
           spaceStation.position.set(1, 10, -15);
+          resolve();
+        },
+        undefined,
+        reject
+      );
+    });
+
+    const satelitePromise = new Promise((resolve, reject) => {
+      loader.load(
+        "/models/satellite/scene.gltf",
+        function (gltf) {
+          satelite = gltf.scene;
+          scene.add(satelite);
+          satelite.scale.set(1, 1, 1);
+          satelite.position.set(1, 25, -15);
+          resolve();
+        },
+        undefined,
+        reject
+      );
+    });
+
+    const sunPromise = new Promise((resolve, reject) => {
+      loader.load(
+        "/models/sun/scene.gltf",
+        function (gltf) {
+          sun = gltf.scene;
+          scene.add(sun);
+          sun.scale.set(0.1, 0.1, 0.1);
+          sun.position.set(30, 200, -200);
           resolve();
         },
         undefined,
@@ -99,9 +150,47 @@ async function loadModels() {
     await Promise.all([
       perseveranceRoverPromise,
       spaceStationPromise,
+      sunPromise,
       marsRoverPromise,
       spaceshipPromise,
+      satelitePromise,
     ]);
+
+    // Enable shadow casting for objects
+    perseveranceRover.traverse(function (child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    spaceStation.traverse(function (child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    marsRover.traverse(function (child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    spaceship.traverse(function (child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    satelite.traverse(function (child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
 
     console.log("Models loaded successfully!");
   } catch (error) {
@@ -191,13 +280,18 @@ function checkCollision() {
 
   const raycaster = new THREE.Raycaster(camera.position, cameraDirection);
   const intersects = raycaster.intersectObject(
-    perseveranceRover || spaceStation || marsRover || spaceship,
+    perseveranceRover ||
+      spaceStation ||
+      marsRover ||
+      spaceship ||
+      sun ||
+      satelite,
     true
   );
 
   if (intersects.length > 0) {
     const distance = intersects[0].distance;
-    if (distance < 2) {
+    if (distance < 1) {
       // Adjust this threshold value according to your scene
       return true; // Collision detected
     }
@@ -206,47 +300,78 @@ function checkCollision() {
   return false; // No collision
 }
 
+const cameraSpeed = 0.1;
+const cameraRotationSpeed = 0.02;
+const cameraHeight = 2; // Adjust the height of the camera from the rover
+const cameraOffset = new THREE.Vector3(0, cameraHeight, 0); // Offset from the rover's position
+
+// Variables to track horizontal and vertical rotation for the camera
+let horizontalRotation = 0;
+let verticalRotation = 0;
+
 function animate() {
   requestAnimationFrame(animate);
 
-  // Movement speed
-  const speed = 0.1;
-
-  // Camera movement
-  const direction = new THREE.Vector3();
-  controls.object.getWorldDirection(direction);
-  direction.normalize();
+  // Movement
+  const moveVector = new THREE.Vector3();
 
   if (keyboardControls.w && !checkCollision()) {
-    camera.position.add(direction.multiplyScalar(speed));
+    moveVector.z -= 1;
   }
   if (keyboardControls.s) {
-    camera.position.sub(direction.multiplyScalar(speed));
-  }
-  if (keyboardControls.d) {
-    camera.position.sub(
-      new THREE.Vector3(direction.z, 0, -direction.x).multiplyScalar(speed)
-    );
+    moveVector.z += 1;
   }
   if (keyboardControls.a) {
-    camera.position.add(
-      new THREE.Vector3(direction.z, 0, -direction.x).multiplyScalar(speed)
+    moveVector.x -= 1;
+  }
+  if (keyboardControls.d) {
+    moveVector.x += 1;
+  }
+
+  moveVector.normalize().multiplyScalar(cameraSpeed);
+  moveVector.applyQuaternion(marsRover.quaternion);
+  marsRover.position.add(moveVector);
+
+  // Horizontal rotation for the rover
+  if (keyboardControls.ArrowLeft) {
+    horizontalRotation += cameraRotationSpeed;
+  }
+  if (keyboardControls.ArrowRight) {
+    horizontalRotation -= cameraRotationSpeed;
+  }
+
+  // Vertical rotation for the camera (within -π/2 to π/2)
+  if (keyboardControls.ArrowUp) {
+    verticalRotation = Math.min(
+      Math.PI / 2,
+      verticalRotation + cameraRotationSpeed
+    );
+  }
+  if (keyboardControls.ArrowDown) {
+    verticalRotation = Math.max(
+      -Math.PI / 2,
+      verticalRotation - cameraRotationSpeed
     );
   }
 
-  // Camera rotation
-  if (keyboardControls.ArrowUp) {
-    camera.rotation.x += 0.01;
-  }
-  if (keyboardControls.ArrowDown) {
-    camera.rotation.x -= 0.01;
-  }
-  if (keyboardControls.ArrowLeft) {
-    camera.rotation.y += 0.01;
-  }
-  if (keyboardControls.ArrowRight) {
-    camera.rotation.y -= 0.01;
-  }
+  // Update rover's quaternion rotation based on horizontal rotation
+  const roverRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(0, 1, 0),
+    horizontalRotation
+  );
+  marsRover.setRotationFromQuaternion(roverRotationQuaternion);
+
+  // Update camera position relative to rover
+  camera.position.copy(marsRover.position).add(cameraOffset);
+
+  // Update camera rotation for vertical rotation only
+  const cameraRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(1, 0, 0),
+    verticalRotation
+  );
+  camera.setRotationFromQuaternion(
+    cameraRotationQuaternion.multiply(marsRover.quaternion)
+  );
 
   renderer.render(scene, camera);
 }
