@@ -23,7 +23,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 
 // Create a directional light
-const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+const sunLight = new THREE.PointLight(null, 450000);
 sunLight.position.set(30, 200, -200); // Same position as the sun
 sunLight.castShadow = true; // Enable shadow casting
 sunLight.shadow.mapSize.width = 2048;
@@ -62,6 +62,13 @@ let marsRover;
 let spaceship;
 let sun;
 let satelite;
+
+const groundGeometry = new THREE.PlaneGeometry(500, 500);
+const groundMaterial = new THREE.MeshBasicMaterial();
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+ground.visible=false
+scene.add(ground);
 
 async function loadModels() {
   try {
@@ -202,6 +209,7 @@ async function loadModels() {
     });
 
     console.log("Models loaded successfully!");
+    console.log(marsRover.position.y)
   } catch (error) {
     console.error("Error loading models:", error);
   }
@@ -317,10 +325,23 @@ function animate() {
   // Movement
   const moveVector = new THREE.Vector3();
   if (keyboardControls.w) {
+    console.log(moveVector.z)
     moveVector.z -= cameraSpeed;
+    if(marsRover.position.y != -0.8){
+      console.log("z: " + marsRover.position.y)
+      moveVector.z = 0
+      marsRover.position.y = -0.8
+      console.log("masuk sini")
+    }
   }
   if (keyboardControls.s) {
     moveVector.z += cameraSpeed;
+    if(marsRover.position.y != -0.8){
+      console.log("z: " + marsRover.position.y)
+      moveVector.z = 0
+      marsRover.position.y = -0.8
+      console.log("masuk sini")
+    }
   }
   if (keyboardControls.a) {
     moveVector.x -= cameraSpeed;
