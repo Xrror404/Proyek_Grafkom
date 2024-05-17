@@ -67,7 +67,7 @@ const groundGeometry = new THREE.PlaneGeometry(500, 500);
 const groundMaterial = new THREE.MeshBasicMaterial();
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
-ground.visible=false
+ground.visible = false;
 scene.add(ground);
 
 async function loadModels() {
@@ -95,7 +95,7 @@ async function loadModels() {
           spaceStation = gltf.scene;
           scene.add(spaceStation);
           spaceStation.scale.set(1, 1, 1);
-          spaceStation.position.set(1, 10, -15);
+          spaceStation.position.set(1, 3.6, -15);
           resolve();
         },
         undefined,
@@ -155,7 +155,7 @@ async function loadModels() {
           spaceship = gltf.scene;
           scene.add(spaceship);
           spaceship.scale.set(1, 1, 1);
-          spaceship.position.set(10, 20, -25);
+          spaceship.position.set(10, 0, -25);
           resolve();
         },
         undefined,
@@ -209,7 +209,7 @@ async function loadModels() {
     });
 
     console.log("Models loaded successfully!");
-    console.log(marsRover.position.y)
+    console.log(marsRover.position.y);
   } catch (error) {
     console.error("Error loading models:", error);
   }
@@ -319,28 +319,46 @@ function checkCollision() {
 const cameraSpeed = 0.1;
 const cameraHeight = 2; // Adjust the height of the camera from the rover
 
+// Add spaceship speed
+const spaceshipSpeed = 0.05;
+const sateliteSpeed = 0.05;
+
 function animate() {
   requestAnimationFrame(animate);
+
+  // Move spaceship upwards
+  if (spaceship) {
+    spaceship.position.y += spaceshipSpeed;
+
+    // Reset spaceship position when it reaches a certain height
+    if (spaceship.position.y > 50) {
+      spaceship.position.y = 0;
+    }
+  }
+
+  if (satelite) {
+    satelite.position.x += sateliteSpeed;
+  }
 
   // Movement
   const moveVector = new THREE.Vector3();
   if (keyboardControls.w) {
-    console.log(moveVector.z)
+    console.log(moveVector.z);
     moveVector.z -= cameraSpeed;
-    if(marsRover.position.y != -0.8){
-      console.log("z: " + marsRover.position.y)
-      moveVector.z = 0
-      marsRover.position.y = -0.8
-      console.log("masuk sini")
+    if (marsRover.position.y != -0.8) {
+      console.log("z: " + marsRover.position.y);
+      moveVector.z = 0;
+      marsRover.position.y = -0.8;
+      console.log("masuk sini");
     }
   }
   if (keyboardControls.s) {
     moveVector.z += cameraSpeed;
-    if(marsRover.position.y != -0.8){
-      console.log("z: " + marsRover.position.y)
-      moveVector.z = 0
-      marsRover.position.y = -0.8
-      console.log("masuk sini")
+    if (marsRover.position.y != -0.8) {
+      console.log("z: " + marsRover.position.y);
+      moveVector.z = 0;
+      marsRover.position.y = -0.8;
+      console.log("masuk sini");
     }
   }
   if (keyboardControls.a) {
