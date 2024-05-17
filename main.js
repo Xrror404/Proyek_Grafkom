@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const scene = new THREE.Scene();
@@ -12,7 +12,9 @@ const camera = new THREE.PerspectiveCamera(
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.gammaOutput = true;
+renderer.shadowMap.enabled = true; // Enable shadow mapping
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Optional: softer shadows
+renderer.outputEncoding = THREE.sRGBEncoding; // Updated from gammaOutput which is deprecated
 renderer.setClearColor(new THREE.Color(199 / 255, 125 / 255, 78 / 255));
 
 document.body.appendChild(renderer.domElement);
@@ -45,7 +47,14 @@ scene.add(helper);
 camera.position.z = 10;
 camera.position.y = 5;
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new PointerLockControls(camera, renderer.domElement);
+scene.add(controls.getObject());
+
+// Add event listener to lock pointer
+document.addEventListener("click", () => {
+  controls.lock();
+});
+
 const loader = new GLTFLoader();
 let perseveranceRover;
 let spaceStation;
@@ -273,7 +282,6 @@ function onKeyUp(event) {
 document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
 
-// Check collision between camera and model
 function checkCollision() {
   const cameraDirection = new THREE.Vector3();
   camera.getWorldDirection(cameraDirection);
@@ -301,77 +309,32 @@ function checkCollision() {
 }
 
 const cameraSpeed = 0.1;
-const cameraRotationSpeed = 0.02;
 const cameraHeight = 2; // Adjust the height of the camera from the rover
-const cameraOffset = new THREE.Vector3(0, cameraHeight, 0); // Offset from the rover's position
-
-// Variables to track horizontal and vertical rotation for the camera
-let horizontalRotation = 0;
-let verticalRotation = 0;
 
 function animate() {
   requestAnimationFrame(animate);
 
   // Movement
   const moveVector = new THREE.Vector3();
-
-  if (keyboardControls.w && !checkCollision()) {
-    moveVector.z -= 1;
+  if (keyboardControls.w) {
+    moveVector.z -= cameraSpeed;
   }
   if (keyboardControls.s) {
-    moveVector.z += 1;
+    moveVector.z += cameraSpeed;
   }
   if (keyboardControls.a) {
-    moveVector.x -= 1;
+    moveVector.x -= cameraSpeed;
   }
   if (keyboardControls.d) {
-    moveVector.x += 1;
+    moveVector.x += cameraSpeed;
   }
 
-  moveVector.normalize().multiplyScalar(cameraSpeed);
-  moveVector.applyQuaternion(marsRover.quaternion);
+  moveVector.applyQuaternion(camera.quaternion);
   marsRover.position.add(moveVector);
 
-  // Horizontal rotation for the rover
-  if (keyboardControls.ArrowLeft) {
-    horizontalRotation += cameraRotationSpeed;
-  }
-  if (keyboardControls.ArrowRight) {
-    horizontalRotation -= cameraRotationSpeed;
-  }
-
-  // Vertical rotation for the camera (within -π/2 to π/2)
-  if (keyboardControls.ArrowUp) {
-    verticalRotation = Math.min(
-      Math.PI / 2,
-      verticalRotation + cameraRotationSpeed
-    );
-  }
-  if (keyboardControls.ArrowDown) {
-    verticalRotation = Math.max(
-      -Math.PI / 2,
-      verticalRotation - cameraRotationSpeed
-    );
-  }
-
-  // Update rover's quaternion rotation based on horizontal rotation
-  const roverRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(
-    new THREE.Vector3(0, 1, 0),
-    horizontalRotation
-  );
-  marsRover.setRotationFromQuaternion(roverRotationQuaternion);
-
-  // Update camera position relative to rover
-  camera.position.copy(marsRover.position).add(cameraOffset);
-
-  // Update camera rotation for vertical rotation only
-  const cameraRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(
-    new THREE.Vector3(1, 0, 0),
-    verticalRotation
-  );
-  camera.setRotationFromQuaternion(
-    cameraRotationQuaternion.multiply(marsRover.quaternion)
-  );
+  camera.position
+    .copy(marsRover.position)
+    .add(new THREE.Vector3(0, cameraHeight, 0));
 
   renderer.render(scene, camera);
 }
