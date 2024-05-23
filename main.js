@@ -321,7 +321,10 @@ const cameraHeight = 2; // Adjust the height of the camera from the rover
 
 // Add spaceship speed
 const spaceshipSpeed = 0.05;
-const sateliteSpeed = 0.05;
+const sateliteSpeed = 0.01;
+
+const orbitRadius = 200; // Adjust this to control the size of the orbit
+let angle = 0;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -337,7 +340,12 @@ function animate() {
   }
 
   if (satelite) {
-    satelite.position.x += sateliteSpeed;
+    angle += sateliteSpeed;
+
+    // Calculate the new position
+    satelite.position.x = orbitRadius * Math.cos(angle);
+    satelite.position.z = orbitRadius * Math.sin(angle);
+    satelite.position.y = 25;
   }
 
   // Movement
