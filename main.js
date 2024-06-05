@@ -1,35 +1,52 @@
+// Mengimpor modul THREE dari Three.js
 import * as THREE from "three";
+// Mengimpor PointerLockControls dari Three.js untuk mengontrol kamera
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
+// Mengimpor GLTFLoader dari Three.js untuk memuat model GLTF
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+// Membuat scene Three.js baru
 const scene = new THREE.Scene();
+// Membuat kamera perspektif Three.js
 const camera = new THREE.PerspectiveCamera(
-  100,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
+  100, // Bidang pandang kamera (FOV)
+  window.innerWidth / window.innerHeight, // Rasio aspek kamera
+  0.1, // Jarak pandang minimum
+  1000 // Jarak pandang maksimum
 );
 
+// Membuat renderer WebGL
 const renderer = new THREE.WebGLRenderer();
+// Mengatur ukuran renderer sesuai ukuran layar
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true; // Enable shadow mapping
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Optional: softer shadows
-renderer.outputEncoding = THREE.sRGBEncoding; // Updated from gammaOutput which is deprecated
+// Mengaktifkan penggunaan shadow map untuk rendering bayangan
+renderer.shadowMap.enabled = true;
+// Mengatur jenis shadow map menjadi PCFSoftShadowMap untuk bayangan yang lebih halus
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// Mengatur output encoding menjadi sRGBEncoding
+renderer.outputEncoding = THREE.sRGBEncoding;
+// Mengatur warna background renderer
 renderer.setClearColor(new THREE.Color(199 / 255, 125 / 255, 78 / 255));
 
+// Menambahkan elemen renderer ke dalam body dokumen HTML
 document.body.appendChild(renderer.domElement);
 
+// Membuat cahaya ambient dengan warna putih dan intensitas 1
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+// Menambahkan cahaya ambient ke dalam scene
 scene.add(ambientLight);
 
-// Create a directional light
+// Membuat cahaya titik (seolah matahari) dengan intensitas tinggi
 const sunLight = new THREE.PointLight(null, 450000);
-sunLight.position.set(30, 200, -100); // Same position as the sun
-sunLight.castShadow = true; // Enable shadow casting
+// Mengatur posisi cahaya titik (matahari)
+sunLight.position.set(30, 200, -100);
+// Mengaktifkan penggunaan shadow casting (penyinaran bayangan) oleh cahaya
+sunLight.castShadow = true;
+// Mengatur ukuran shadow map untuk cahaya
 sunLight.shadow.mapSize.width = 2048;
 sunLight.shadow.mapSize.height = 2048;
 
-// Set up shadow properties for the light
+// Mengatur properti shadow camera untuk cahaya
 sunLight.shadow.camera.left = -500;
 sunLight.shadow.camera.right = 500;
 sunLight.shadow.camera.top = 500;
@@ -37,25 +54,30 @@ sunLight.shadow.camera.bottom = -500;
 sunLight.shadow.camera.near = 0.5;
 sunLight.shadow.camera.far = 500;
 
-// Add the light to the scene
+// Menambahkan cahaya titik ke dalam scene
 scene.add(sunLight);
 
-// Optionally, you can add a helper to visualize the shadow camera's frustum
+// Opsi tambahan: Menambahkan helper untuk visualisasi frustum kamera shadow
 const helper = new THREE.CameraHelper(sunLight.shadow.camera);
 scene.add(helper);
 
+// Mengatur posisi awal kamera
 camera.position.z = 10;
 camera.position.y = 5;
 
+// Membuat kontrol PointerLockControls untuk mengontrol kamera
 const controls = new PointerLockControls(camera, renderer.domElement);
+// Menambahkan kontrol kamera ke dalam scene
 scene.add(controls.getObject());
 
-// Add event listener to lock pointer
+// Menambahkan event listener untuk mengunci pointer saat tombol mouse diklik
 document.addEventListener("click", () => {
   controls.lock();
 });
 
+// Membuat loader untuk memuat model 3D
 const loader = new GLTFLoader();
+// Mendefinisikan variabel untuk menyimpan instance model yang dimuat
 let perseveranceRover;
 let spaceStation;
 let marsRover;
@@ -63,106 +85,119 @@ let spaceship;
 let sun;
 let satelite;
 
+// Membuat geometri dan material untuk lantai (tanah)
 const groundGeometry = new THREE.PlaneGeometry(500, 500);
 const groundMaterial = new THREE.MeshBasicMaterial();
+// Membuat objek lantai (tanah) dari geometri dan material yang telah dibuat
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+// Mengatur rotasi objek lantai (tanah) agar sejajar dengan sumbu x
 ground.rotation.x = -Math.PI / 2;
+// Mengatur objek lantai (tanah) menjadi tidak terlihat
 ground.visible = false;
+// Menambahkan objek lantai (tanah) ke dalam scene
 scene.add(ground);
 
+// Fungsi asinkron untuk memuat semua model
 async function loadModels() {
   try {
+    // Memuat model Perseverance Rover
     const perseveranceRoverPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/ingenuity_in_front_of_raised_ridge.glb",
+        "/models/ingenuity_in_front_of_raised_ridge.glb", // Lokasi file model
         function (gltf) {
-          perseveranceRover = gltf.scene;
-          scene.add(perseveranceRover);
-          perseveranceRover.scale.set(3, 3, 3);
-          perseveranceRover.position.set(0, 0, 0);
-          perseveranceRover.rotation.y -= 90;
-          resolve();
+          perseveranceRover = gltf.scene; // Menyimpan model ke dalam variabel
+          scene.add(perseveranceRover); // Menambahkan model ke dalam scene
+          perseveranceRover.scale.set(3, 3, 3); // Mengatur skala model
+          perseveranceRover.position.set(0, 0, 0); // Mengatur posisi model
+          perseveranceRover.rotation.y -= 90; // Mengatur rotasi model
+          resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
-        reject
+        reject // Menandakan bahwa terjadi kesalahan saat memuat model
       );
     });
 
+    // Memuat model Space Station
     const spaceStationPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/low_poly_space_station/scene.gltf",
+        "/models/low_poly_space_station/scene.gltf", // Lokasi file model
         function (gltf) {
-          spaceStation = gltf.scene;
-          scene.add(spaceStation);
-          spaceStation.scale.set(1, 1, 1);
-          spaceStation.position.set(1, 3.6, -15);
-          resolve();
+          spaceStation = gltf.scene; // Menyimpan model ke dalam variabel
+          scene.add(spaceStation); // Menambahkan model ke dalam scene
+          spaceStation.scale.set(1, 1, 1); // Mengatur skala model
+          spaceStation.position.set(1, 3.6, -15); // Mengatur posisi model
+          resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
-        reject
+        reject // Menandakan bahwa terjadi kesalahan saat memuat model
       );
     });
 
+    // Memuat model Satelit
     const satelitePromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/satellite/scene.gltf",
+        "/models/satellite/scene.gltf", // Lokasi file model
         function (gltf) {
-          satelite = gltf.scene;
-          scene.add(satelite);
-          satelite.scale.set(1, 1, 1);
-          satelite.position.set(1, 25, -15);
-          resolve();
+          satelite = gltf.scene; // Menyimpan model ke dalam variabel
+          scene.add(satelite); // Menambahkan model ke dalam scene
+          satelite.scale.set(1, 1, 1); // Mengatur skala model
+          satelite.position.set(1, 25, -15); // Mengatur posisi model
+          resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
-        reject
+        reject // Menandakan bahwa terjadi kesalahan saat memuat model
       );
     });
 
+    // Memuat model Matahari
     const sunPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/sun/scene.gltf",
+        "/models/sun/scene.gltf", // Lokasi file model
         function (gltf) {
-          sun = gltf.scene;
-          scene.add(sun);
-          sun.scale.set(0.1, 0.1, 0.1);
-          sun.position.set(30, 200, -100);
-          resolve();
+          sun = gltf.scene; // Menyimpan model ke dalam variabel
+          scene.add(sun); // Menambahkan model ke dalam scene
+          sun.scale.set(0.1, 0.1, 0.1); // Mengatur skala model
+          sun.position.set(30, 200, -100); // Mengatur posisi model
+          resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
-        reject
+        reject // Menandakan bahwa terjadi kesalahan saat memuat model
       );
     });
 
+    // Memuat model Mars Rover
     const marsRoverPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/mars_rover/scene.gltf",
+        "/models/mars_rover/scene.gltf", // Lokasi file model
         function (gltf) {
-          marsRover = gltf.scene;
-          scene.add(marsRover);
-          marsRover.scale.set(1, 1, 1);
-          marsRover.position.set(5, -0.8, -15);
-          resolve();
+          marsRover = gltf.scene; // Menyimpan model ke dalam variabel
+          scene.add(marsRover); // Menambahkan model ke dalam scene
+          marsRover.scale.set(1, 1, 1); // Mengatur skala model
+          marsRover.position.set(5, -0.8, -15); // Mengatur posisi model
+          resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
-        reject
+        reject // Menandakan bahwa terjadi kesalahan saat memuat model
       );
     });
 
+    // Memuat model Spaceship
     const spaceshipPromise = new Promise((resolve, reject) => {
       loader.load(
-        "/models/spaceship/scene.gltf",
+        "/models/spaceship/scene.gltf", // Lokasi file model
         function (gltf) {
-          spaceship = gltf.scene;
-          scene.add(spaceship);
-          spaceship.scale.set(1, 1, 1);
-          spaceship.position.set(10, 0, -25);
-          resolve();
+          spaceship = gltf.scene; // Menyimpan model ke dalam variabel
+          scene.add(spaceship); // Menambahkan model ke dalam scene
+          spaceship.scale.set(1, 1, 1); // Mengatur skala model
+          spaceship.position.set(10, 0, -25); // Mengatur posisi model
+          resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
-        reject
+        reject // Menandakan bahwa terjadi kesalahan saat memuat model
       );
     });
 
+    // Menunggu hingga semua model telah dimuat sebelum melanjutkan
     await Promise.all([
       perseveranceRoverPromise,
       spaceStationPromise,
@@ -172,7 +207,7 @@ async function loadModels() {
       satelitePromise,
     ]);
 
-    // Enable shadow casting for objects
+    // Mengaktifkan shadow casting untuk semua objek yang dimuat
     perseveranceRover.traverse(function (child) {
       if (child.isMesh) {
         child.castShadow = true;
@@ -208,16 +243,17 @@ async function loadModels() {
       }
     });
 
-    console.log("Models loaded successfully!");
-    console.log(marsRover.position.y);
+    console.log("Models loaded successfully!"); // Log pesan ke konsol
+    console.log(marsRover.position.y); // Log posisi Y Mars Rover ke konsol
   } catch (error) {
-    console.error("Error loading models:", error);
+    console.error("Error loading models:", error); // Log pesan kesalahan ke konsol jika terjadi kesalahan
   }
 }
 
+// Memanggil fungsi untuk memuat model-model
 loadModels();
 
-// Keyboard controls for camera movement
+// Objek untuk menyimpan status tombol keyboard yang ditekan
 const keyboardControls = {
   w: false,
   a: false,
@@ -229,6 +265,7 @@ const keyboardControls = {
   ArrowRight: false,
 };
 
+// Fungsi event saat tombol keyboard ditekan
 function onKeyDown(event) {
   switch (event.code) {
     case "KeyW":
@@ -258,6 +295,7 @@ function onKeyDown(event) {
   }
 }
 
+// Fungsi event saat tombol keyboard dilepas
 function onKeyUp(event) {
   switch (event.code) {
     case "KeyW":
@@ -287,9 +325,11 @@ function onKeyUp(event) {
   }
 }
 
+// Menambahkan event listener untuk tombol keyboard yang ditekan dan dilepas
 document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
 
+// Fungsi untuk memeriksa tabrakan antara objek dengan kamera
 function checkCollision() {
   const cameraDirection = new THREE.Vector3();
   camera.getWorldDirection(cameraDirection);
@@ -308,69 +348,74 @@ function checkCollision() {
   if (intersects.length > 0) {
     const distance = intersects[0].distance;
     if (distance < 1) {
-      // Adjust this threshold value according to your scene
-      return true; // Collision detected
+      // Sesuaikan nilai ambang ini sesuai kebutuhan aplikasi Anda
+      return true; // Tabrakan terdeteksi
     }
   }
 
-  return false; // No collision
+  return false; // Tidak ada tabrakan
 }
 
+// Kecepatan pergerakan kamera
 const cameraSpeed = 0.1;
-const cameraHeight = 2; // Adjust the height of the camera from the rover
+const cameraHeight = 2; // Tinggi kamera dari permukaan Mars Rover
 
-// Add spaceship speed
+// Menambahkan kecepatan untuk Spaceship
 const spaceshipSpeed = 0.05;
 const sateliteSpeed = 0.01;
 
-const orbitRadius = 200; // Adjust this to control the size of the orbit
+// Radius orbit satelit
+const orbitRadius = 200;
 let angle = 0;
 
-const spaceshipRadius = 10; // Adjust this to control the size of the orbit for the spaceship
-const spaceshipOrbitSpeed = 0.02; // Adjust this to control the speed of the orbit
+// Radius orbit spaceship
+const spaceshipRadius = 10;
+const spaceshipOrbitSpeed = 0.02;
 let spaceshipAngle = 0;
 
+// Fungsi untuk animasi objek di dalam scene
 function animate() {
   requestAnimationFrame(animate);
 
-  // Move spaceship in a circular path
+  // Menggerakkan Spaceship dalam lintasan lingkaran
   if (spaceship) {
     spaceshipAngle += spaceshipOrbitSpeed;
 
-    // Calculate the new position
+    // Menghitung posisi baru
     spaceship.position.x = spaceshipRadius * Math.cos(spaceshipAngle);
     spaceship.position.z = spaceshipRadius * Math.sin(spaceshipAngle);
-    spaceship.position.y = 35; // Adjust the height if needed
+    spaceship.position.y = 35; // Sesuaikan ketinggian jika diperlukan
+
+    // Menghadap ke arah gerakan
+    spaceship.lookAt(0, 35, 0);
   }
 
+  // Menggerakkan Satelit dalam orbit elips
   if (satelite) {
     angle += sateliteSpeed;
 
-    // Calculate the new position
+    // Menghitung posisi baru
     satelite.position.x = orbitRadius * Math.cos(angle);
     satelite.position.z = orbitRadius * Math.sin(angle);
     satelite.position.y = 25;
   }
 
-  // Movement
+  // Pergerakan kamera sesuai input keyboard
   const moveVector = new THREE.Vector3();
   if (keyboardControls.w) {
-    console.log(moveVector.z);
     moveVector.z -= cameraSpeed;
     if (marsRover.position.y != -0.8) {
-      console.log("z: " + marsRover.position.y);
+      // Memeriksa jika Mars Rover tidak berada di permukaan
       moveVector.z = 0;
-      marsRover.position.y = -0.8;
-      console.log("masuk sini");
+      marsRover.position.y = -0.8; // Mengatur posisi Mars Rover kembali ke permukaan
     }
   }
   if (keyboardControls.s) {
     moveVector.z += cameraSpeed;
     if (marsRover.position.y != -0.8) {
-      console.log("z: " + marsRover.position.y);
+      // Memeriksa jika Mars Rover tidak berada di permukaan
       moveVector.z = 0;
-      marsRover.position.y = -0.8;
-      console.log("masuk sini");
+      marsRover.position.y = -0.8; // Mengatur posisi Mars Rover kembali ke permukaan
     }
   }
   if (keyboardControls.a) {
@@ -381,13 +426,16 @@ function animate() {
   }
 
   moveVector.applyQuaternion(camera.quaternion);
-  marsRover.position.add(moveVector);
+  marsRover.position.add(moveVector); // Menggerakkan Mars Rover
 
+  // Mengatur posisi kamera mengikuti Mars Rover
   camera.position
     .copy(marsRover.position)
     .add(new THREE.Vector3(0, cameraHeight, 0));
 
+  // Merender scene dengan kamera yang diberikan
   renderer.render(scene, camera);
 }
 
+// Memanggil fungsi untuk memulai animasi
 animate();
