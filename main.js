@@ -24,7 +24,7 @@ scene.add(ambientLight);
 
 // Create a directional light
 const sunLight = new THREE.PointLight(null, 450000);
-sunLight.position.set(30, 200, -200); // Same position as the sun
+sunLight.position.set(30, 200, -100); // Same position as the sun
 sunLight.castShadow = true; // Enable shadow casting
 sunLight.shadow.mapSize.width = 2048;
 sunLight.shadow.mapSize.height = 2048;
@@ -125,7 +125,7 @@ async function loadModels() {
           sun = gltf.scene;
           scene.add(sun);
           sun.scale.set(0.1, 0.1, 0.1);
-          sun.position.set(30, 200, -200);
+          sun.position.set(30, 200, -100);
           resolve();
         },
         undefined,
@@ -326,17 +326,21 @@ const sateliteSpeed = 0.01;
 const orbitRadius = 200; // Adjust this to control the size of the orbit
 let angle = 0;
 
+const spaceshipRadius = 10; // Adjust this to control the size of the orbit for the spaceship
+const spaceshipOrbitSpeed = 0.02; // Adjust this to control the speed of the orbit
+let spaceshipAngle = 0;
+
 function animate() {
   requestAnimationFrame(animate);
 
-  // Move spaceship upwards
+  // Move spaceship in a circular path
   if (spaceship) {
-    spaceship.position.y += spaceshipSpeed;
+    spaceshipAngle += spaceshipOrbitSpeed;
 
-    // Reset spaceship position when it reaches a certain height
-    if (spaceship.position.y > 50) {
-      spaceship.position.y = 0;
-    }
+    // Calculate the new position
+    spaceship.position.x = spaceshipRadius * Math.cos(spaceshipAngle);
+    spaceship.position.z = spaceshipRadius * Math.sin(spaceshipAngle);
+    spaceship.position.y = 35; // Adjust the height if needed
   }
 
   if (satelite) {
