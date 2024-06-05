@@ -387,7 +387,7 @@ function animate() {
     spaceship.position.y = 35; // Sesuaikan ketinggian jika diperlukan
 
     // Menghitung posisi berikutnya untuk orientasi
-    let nextAngle = spaceshipAngle + spaceshipOrbitSpeed;
+    let nextAngle = spaceshipAngle - spaceshipOrbitSpeed;
     let nextPositionX = spaceshipRadius * Math.cos(nextAngle);
     let nextPositionZ = spaceshipRadius * Math.sin(nextAngle);
 
@@ -405,7 +405,7 @@ function animate() {
     satelite.position.y = 25;
 
     // Menghitung posisi berikutnya untuk orientasi
-    let nextAngle = angle + sateliteSpeed;
+    let nextAngle = angle - sateliteSpeed;
     let nextPositionX = orbitRadius * Math.cos(nextAngle);
     let nextPositionZ = orbitRadius * Math.sin(nextAngle);
 
