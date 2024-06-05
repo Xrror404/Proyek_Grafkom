@@ -386,8 +386,13 @@ function animate() {
     spaceship.position.z = spaceshipRadius * Math.sin(spaceshipAngle);
     spaceship.position.y = 35; // Sesuaikan ketinggian jika diperlukan
 
+    // Menghitung posisi berikutnya untuk orientasi
+    let nextAngle = spaceshipAngle + spaceshipOrbitSpeed;
+    let nextPositionX = spaceshipRadius * Math.cos(nextAngle);
+    let nextPositionZ = spaceshipRadius * Math.sin(nextAngle);
+
     // Menghadap ke arah gerakan
-    spaceship.lookAt(0, 35, 0);
+    spaceship.lookAt(nextPositionX, 35, nextPositionZ);
   }
 
   // Menggerakkan Satelit dalam orbit elips
@@ -398,6 +403,14 @@ function animate() {
     satelite.position.x = orbitRadius * Math.cos(angle);
     satelite.position.z = orbitRadius * Math.sin(angle);
     satelite.position.y = 25;
+
+    // Menghitung posisi berikutnya untuk orientasi
+    let nextAngle = angle + sateliteSpeed;
+    let nextPositionX = orbitRadius * Math.cos(nextAngle);
+    let nextPositionZ = orbitRadius * Math.sin(nextAngle);
+
+    // Menghadap ke arah gerakan
+    satelite.lookAt(nextPositionX, 25, nextPositionZ);
   }
 
   // Pergerakan kamera sesuai input keyboard
