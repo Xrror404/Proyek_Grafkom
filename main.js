@@ -125,7 +125,7 @@ async function loadModels() {
           spaceStation = gltf.scene; // Menyimpan model ke dalam variabel
           scene.add(spaceStation); // Menambahkan model ke dalam scene
           spaceStation.scale.set(1, 1, 1); // Mengatur skala model
-          spaceStation.position.set(1, 3.6, -15); // Mengatur posisi model
+          spaceStation.position.set(1, 5, -15); // Mengatur posisi model
           resolve(); // Menandakan bahwa model telah dimuat dengan sukses
         },
         undefined,
@@ -330,31 +330,31 @@ document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
 
 // Fungsi untuk memeriksa tabrakan antara objek dengan kamera
-function checkCollision() {
-  const cameraDirection = new THREE.Vector3();
-  camera.getWorldDirection(cameraDirection);
+// function checkCollision() {
+//   const cameraDirection = new THREE.Vector3();
+//   camera.getWorldDirection(cameraDirection);
 
-  const raycaster = new THREE.Raycaster(camera.position, cameraDirection);
-  const intersects = raycaster.intersectObject(
-    perseveranceRover ||
-      spaceStation ||
-      marsRover ||
-      spaceship ||
-      sun ||
-      satelite,
-    true
-  );
+//   const raycaster = new THREE.Raycaster(camera.position, cameraDirection);
+//   const intersects = raycaster.intersectObject(
+//     perseveranceRover ||
+//       spaceStation ||
+//       marsRover ||
+//       spaceship ||
+//       sun ||
+//       satelite,
+//     true
+//   );
 
-  if (intersects.length > 0) {
-    const distance = intersects[0].distance;
-    if (distance < 1) {
-      // Sesuaikan nilai ambang ini sesuai kebutuhan aplikasi Anda
-      return true; // Tabrakan terdeteksi
-    }
-  }
+//   if (intersects.length > 0) {
+//     const distance = intersects[0].distance;
+//     if (distance < 1) {
+//       // Sesuaikan nilai ambang ini sesuai kebutuhan aplikasi Anda
+//       return true; // Tabrakan terdeteksi
+//     }
+//   }
 
-  return false; // Tidak ada tabrakan
-}
+//   return false; // Tidak ada tabrakan
+// }
 
 // Kecepatan pergerakan kamera
 const cameraSpeed = 0.1;
