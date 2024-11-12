@@ -15,8 +15,6 @@ const camera = new THREE.PerspectiveCamera(
   1000 // Jarak pandang maksimum
 );
 
-acong gay
-
 // Membuat renderer WebGL
 const renderer = new THREE.WebGLRenderer();
 // Mengatur ukuran renderer sesuai ukuran layar
